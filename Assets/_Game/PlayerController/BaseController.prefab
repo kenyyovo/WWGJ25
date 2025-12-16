@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5705448364716227}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43,9 +43,9 @@ GameObject:
   - component: {fileID: 1737374429392865247}
   - component: {fileID: 4805143103588889873}
   - component: {fileID: 6022594841919392331}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BaseController
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -159,6 +159,7 @@ MonoBehaviour:
   rb: {fileID: 1737374429392865247}
   animator: {fileID: 5045183173376306742}
   groundCheck: {fileID: 5705448364716227}
+  spriteRoot: {fileID: 6524108366447653447}
   bubbleRow: {fileID: 7575903325392096926}
   noteSprites:
   - {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
@@ -179,7 +180,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6524108366447653447}
   - component: {fileID: 2596292187080091284}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -242,11 +243,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingLayerID: -2090941127
+  m_SortingLayer: 1
+  m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -266,7 +267,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5669805587835064168}
   - component: {fileID: 5045183173376306742}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: AnimRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -321,7 +322,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8697119335753660107}
   - component: {fileID: 7575903325392096926}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BubbleRow
   m_TagString: Untagged
   m_Icon: {fileID: 0}

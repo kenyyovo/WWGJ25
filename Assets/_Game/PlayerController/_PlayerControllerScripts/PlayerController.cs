@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Animator animator;
     [SerializeField] private Transform groundCheck;
+    [SerializeField] private Transform spriteRoot;
 
     [Header("NOTE SHEET")] 
     [SerializeField] private BubbleRow bubbleRow;
@@ -62,7 +63,11 @@ public class PlayerController : MonoBehaviour
     
     private void HandleMovement()
     {
-        if (isMusicMode) return;
+        if (isMusicMode)
+        {
+            animator.SetBool("IsMoving", false);
+            return;
+        }
         
         float move = 0f;
 
@@ -76,8 +81,12 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftArrow))  move = -1f;
             if (Input.GetKey(KeyCode.RightArrow)) move =  1f;
         }
-
+        
         rb.linearVelocity = new Vector2(move * moveSpeed, rb.linearVelocity.y);
+        
+        animator.SetBool("IsMoving", Mathf.Abs(move) > 0.01f && isGrounded);
+        
+        if (move != 0) spriteRoot.localScale = new Vector3(Mathf.Sign(-move), 1f, 1f);
     }
 
     private void HandleJump()
