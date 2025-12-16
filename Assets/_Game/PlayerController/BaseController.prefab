@@ -171,10 +171,10 @@ MonoBehaviour:
   sequenceData: {fileID: 0}
   otherPlayer: {fileID: 0}
   sequenceTimeout: 2
-  effectCooldown: 5
   sparklePS: {fileID: 42882106892674365, guid: 151f7a7941ce9e14fb5796162682bdea, type: 3}
   sweatPS: {fileID: 42882106892674365, guid: 5dcdc849503867c4dad51e3feebbba4d, type: 3}
   angryPS: {fileID: 42882106892674365, guid: 4d5a7dda4ee9bf14791c73d941ab3cff, type: 3}
+  cooldownPS: {fileID: 42882106892674365, guid: 723c60746a1bc5940a0a11d077123370, type: 3}
 --- !u!1 &3230859374575624134
 GameObject:
   m_ObjectHideFlags: 0

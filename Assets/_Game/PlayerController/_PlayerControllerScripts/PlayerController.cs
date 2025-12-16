@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum PlayerID
+{
+    Player1,
+    Player2
+}
+
 public class PlayerController : MonoBehaviour
 {
     [Header("PLAYER")]
@@ -27,10 +33,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private NoteSequenceData sequenceData;
     [SerializeField] private PlayerController otherPlayer;
     [SerializeField] private float sequenceTimeout = 2f;
-    [SerializeField] private float effectCooldown = 5f;
     [SerializeField] private GameObject sparklePS;
     [SerializeField] private GameObject sweatPS;
     [SerializeField] private GameObject angryPS;
+    [SerializeField] private GameObject cooldownPS;
     
     private bool isGrounded;
     private LayerMask groundLayer;
@@ -42,6 +48,8 @@ public class PlayerController : MonoBehaviour
     private bool isOnEffectCooldown;
     private float effectCooldownEndTime;
     private bool isSequenceLocked;
+
+    private bool isInvertControls;
 
     private void OnEnable()
     {
@@ -84,6 +92,11 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.LeftArrow))  move = -1f;
             if (Input.GetKey(KeyCode.RightArrow)) move =  1f;
+        }
+        
+        if (isInvertControls)
+        {
+            move *= -1f;
         }
         
         rb.linearVelocity = new Vector2(move * moveSpeed, rb.linearVelocity.y);
@@ -197,7 +210,7 @@ public class PlayerController : MonoBehaviour
             if (IsMatch(seq.notes))
             {
                 matched = true;
-                otherPlayer.RecieveEffect(seq.sequenceName);
+                otherPlayer.TriggerEffect(seq.sequenceName);
                 SpawnReactionPS(sparklePS);
                 break;
             }
@@ -205,7 +218,7 @@ public class PlayerController : MonoBehaviour
 
         if (!matched)
         {
-            otherPlayer.RecieveBadEffect();
+            otherPlayer.TriggerBadEffect();
             SpawnReactionPS(sweatPS);
         }
         
@@ -239,49 +252,6 @@ public class PlayerController : MonoBehaviour
         }
     }
     
-    private void UpdateEffectCooldown()
-    {
-        if (!isOnEffectCooldown) return;
-
-        if (Time.time >= effectCooldownEndTime)
-        {
-            isOnEffectCooldown = false;
-            Debug.Log($"{playerID} effect cooldown ended.");
-        }
-    }
-    
-    public void RecieveEffect(string effectName)
-    {
-        if (isOnEffectCooldown)
-        {
-            Debug.Log("On cooldown");
-            return;
-        }
-        
-        SpawnReactionPS(sparklePS);
-        Debug.Log($"{playerID} received effect: {effectName}");
-        StartEffectCooldown();
-    }
-
-    public void RecieveBadEffect()
-    {
-        if (isOnEffectCooldown)
-        {
-            Debug.Log("On cooldown");
-            return;
-        }
-        
-        SpawnReactionPS(angryPS);
-        Debug.Log($"{playerID} received bad effect");
-        StartEffectCooldown();
-    }
-
-    private void StartEffectCooldown()
-    {
-        isOnEffectCooldown = true;
-        effectCooldownEndTime = Time.time + effectCooldown;
-    }
-
     private void SpawnReactionPS(GameObject gameObject)
     {
         GameObject fx = Instantiate(gameObject, particleRoot);
@@ -298,12 +268,118 @@ public class PlayerController : MonoBehaviour
         Destroy(fx, 2.5f);
     }
     
+    private void UpdateEffectCooldown()
+    {
+        if (!isOnEffectCooldown) return;
+
+        if (Time.time >= effectCooldownEndTime)
+        {
+            isOnEffectCooldown = false;
+            SpawnReactionPS(cooldownPS);
+        }
+    }
+    #endregion
+    
+    #region Good Effects
+    
+    private void TriggerEffect(string effectName)
+    {
+        if (isOnEffectCooldown) return;
+        
+        SpawnReactionPS(sparklePS);
+        //Give Effect, move start cooldown in the giveeffect functions
+        StartEffectCooldown(3f);
+    }
+    
+    #endregion
+    
+    #region Bad Effects
+
+    private void TriggerBadEffect()
+    {
+        if (isOnEffectCooldown) return;
+        
+        System.Action[] effects = new System.Action[]
+        {
+            () => StartCoroutine(BackflipRoutine()),
+            () => StartCoroutine(FlipRoutine()),
+            () => StartCoroutine(InvertControlsRoutine())
+        };
+        
+        int index = Random.Range(0, effects.Length);
+        
+        SpawnReactionPS(angryPS);
+        
+        effects[index].Invoke();
+    }
+
+    private IEnumerator InvertControlsRoutine()
+    {
+        isInvertControls = true;
+        StartEffectCooldown(5.05f);
+        
+        yield return new WaitForSeconds(5f);
+        
+        isInvertControls = false;
+    }
+
+    private IEnumerator BackflipRoutine()
+    {
+        StartEffectCooldown(2f);
+
+        float elapsed = 0f;
+        float duration = 1f;
+        float startRotation = transform.localEulerAngles.z;
+        Vector3 startPosition = transform.localPosition;
+        float jumpHeight = 0.5f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            
+            float rotation = Mathf.Lerp(0f, 360f, t);
+            transform.localEulerAngles = new Vector3(0f, 0f, startRotation + rotation);
+            
+            float yOffset = 4f * jumpHeight * t * (1f - t);
+            transform.localPosition = new Vector3(startPosition.x, startPosition.y + yOffset, startPosition.z);
+
+            yield return null;
+        }
+        
+        transform.localEulerAngles = new Vector3(0f, 0f, startRotation);
+    }
+
+    private IEnumerator FlipRoutine()
+    {
+        StartEffectCooldown(2f);
+        
+        float elapsed = 0f;
+        float duration = 1f;
+        float startRotation = transform.localEulerAngles.y;
+        
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            
+            float rotation = Mathf.Lerp(0f, 360f, t);
+            transform.localEulerAngles = new Vector3(0f, startRotation + rotation, 0f);
+
+            yield return null;
+        }
+        
+        transform.localEulerAngles = new Vector3(0f, startRotation, 0f);
+    }
+
+    private void StartEffectCooldown(float effectCooldown)
+    {
+        isOnEffectCooldown = true;
+        effectCooldownEndTime = Time.time + effectCooldown;
+    }
+    
     #endregion
     
 }
 
-public enum PlayerID
-{
-    Player1,
-    Player2
-}
+
