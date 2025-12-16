@@ -6,8 +6,7 @@ public class BubbleRow : MonoBehaviour
 {
 	[SerializeField] private NoteBubble bubblePrefab;
 	[SerializeField] private float spacing = 0.45f;
-	[SerializeField] private float failLifetime = 1f;
-	[SerializeField] private float successLifetime = 2f;
+	[SerializeField] private Animation animation;
 
 	private readonly List<NoteBubble> bubbles = new();
 
@@ -26,7 +25,16 @@ public class BubbleRow : MonoBehaviour
 
 	public void Resolve(bool matched, System.Action onComplete)
 	{
-		float duration = matched ? 2f : 0.5f;
+		float duration = matched ? 1.5f : .75f;
+
+		if (matched)
+		{
+			animation.Play("RightSequenceAnim");
+		}
+		else
+		{
+			animation.Play("WrongSequenceAnim");
+		}
 
 		foreach (var bubble in bubbles)
 		{
@@ -47,7 +55,8 @@ public class BubbleRow : MonoBehaviour
 			if (bubble != null) 
 				Destroy(bubble.gameObject);
 		}
-
+		
+		transform.localScale = Vector3.one;
 		bubbles.Clear();
 		onComplete?.Invoke();
 	}

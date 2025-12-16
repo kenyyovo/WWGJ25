@@ -16,6 +16,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: P1Controller
       objectReference: {fileID: 0}
+    - target: {fileID: 1029318446095660496, guid: 75995727ff9993540a956972b6984a75, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 1726999912737018756, guid: 75995727ff9993540a956972b6984a75, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1

@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private Transform spriteRoot;
+    [SerializeField] private Transform particleRoot;
 
     [Header("NOTE SHEET")] 
     [SerializeField] private BubbleRow bubbleRow;
@@ -27,6 +28,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerController otherPlayer;
     [SerializeField] private float sequenceTimeout = 2f;
     [SerializeField] private float effectCooldown = 5f;
+    [SerializeField] private GameObject sparklePS;
+    [SerializeField] private GameObject sweatPS;
+    [SerializeField] private GameObject angryPS;
     
     private bool isGrounded;
     private LayerMask groundLayer;
@@ -194,8 +198,15 @@ public class PlayerController : MonoBehaviour
             {
                 matched = true;
                 otherPlayer.RecieveEffect(seq.sequenceName);
+                SpawnReactionPS(sparklePS);
                 break;
             }
+        }
+
+        if (!matched)
+        {
+            otherPlayer.RecieveBadEffect();
+            SpawnReactionPS(sweatPS);
         }
         
         isSequenceLocked = true;
@@ -247,7 +258,21 @@ public class PlayerController : MonoBehaviour
             return;
         }
         
+        SpawnReactionPS(sparklePS);
         Debug.Log($"{playerID} received effect: {effectName}");
+        StartEffectCooldown();
+    }
+
+    public void RecieveBadEffect()
+    {
+        if (isOnEffectCooldown)
+        {
+            Debug.Log("On cooldown");
+            return;
+        }
+        
+        SpawnReactionPS(angryPS);
+        Debug.Log($"{playerID} received bad effect");
         StartEffectCooldown();
     }
 
@@ -255,6 +280,22 @@ public class PlayerController : MonoBehaviour
     {
         isOnEffectCooldown = true;
         effectCooldownEndTime = Time.time + effectCooldown;
+    }
+
+    private void SpawnReactionPS(GameObject gameObject)
+    {
+        GameObject fx = Instantiate(gameObject, particleRoot);
+        
+        Vector3 localPos = Vector3.zero;
+        
+        if (isMusicMode)
+        {
+            localPos.y += 0.45f;
+        }
+
+        fx.transform.localPosition = localPos;
+        
+        Destroy(fx, 2.5f);
     }
     
     #endregion

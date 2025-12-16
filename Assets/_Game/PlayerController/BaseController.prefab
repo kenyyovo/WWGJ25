@@ -66,6 +66,7 @@ Transform:
   - {fileID: 5669805587835064168}
   - {fileID: 5705448364716227}
   - {fileID: 8697119335753660107}
+  - {fileID: 1029318446095660496}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &1737374429392865247
@@ -160,16 +161,20 @@ MonoBehaviour:
   animator: {fileID: 5045183173376306742}
   groundCheck: {fileID: 5705448364716227}
   spriteRoot: {fileID: 6524108366447653447}
+  particleRoot: {fileID: 1029318446095660496}
   bubbleRow: {fileID: 7575903325392096926}
   noteSprites:
-  - {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  - {fileID: -712631045867808456, guid: b670ab75dde984907b8570040daa08c5, type: 3}
-  - {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  - {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
+  - {fileID: -4729439089291347794, guid: 05db724276af3b54882ffde0a3f28158, type: 3}
+  - {fileID: 6177399327049070279, guid: 02346adc973ec5149a772890278437b1, type: 3}
+  - {fileID: 66606133697901967, guid: c538ffc74ecab074bad5fd819a65602e, type: 3}
+  - {fileID: 1700291763090941123, guid: 5b27244c56a607147b03fe6d136e0b51, type: 3}
   sequenceData: {fileID: 0}
   otherPlayer: {fileID: 0}
   sequenceTimeout: 2
   effectCooldown: 5
+  sparklePS: {fileID: 42882106892674365, guid: 151f7a7941ce9e14fb5796162682bdea, type: 3}
+  sweatPS: {fileID: 42882106892674365, guid: 5dcdc849503867c4dad51e3feebbba4d, type: 3}
+  angryPS: {fileID: 42882106892674365, guid: 4d5a7dda4ee9bf14791c73d941ab3cff, type: 3}
 --- !u!1 &3230859374575624134
 GameObject:
   m_ObjectHideFlags: 0
@@ -322,6 +327,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8697119335753660107}
   - component: {fileID: 7575903325392096926}
+  - component: {fileID: 5913296759169699344}
   m_Layer: 6
   m_Name: BubbleRow
   m_TagString: Untagged
@@ -343,7 +349,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8476835537063936340}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 3.8518524}
 --- !u!114 &7575903325392096926
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -356,7 +362,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00ac76f65b157344eb8850c1fb12844b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubblePrefab: {fileID: 3822838586619241711, guid: 3a5766f97685d904abea4afb34bb2d66, type: 3}
-  spacing: 1
-  failLifetime: 1
-  successLifetime: 2
+  bubblePrefab: {fileID: 7409814012218710018, guid: 3a5766f97685d904abea4afb34bb2d66, type: 3}
+  spacing: 0.8
+  animation: {fileID: 5913296759169699344}
+--- !u!111 &5913296759169699344
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6469989277893481215}
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Animation: {fileID: 0}
+  m_Animations:
+  - {fileID: 7400000, guid: 96e3340f17277364b9da74769ae55047, type: 2}
+  - {fileID: 7400000, guid: 3daea59d13fa83a439289cd067ddd39c, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_UpdateMode: 0
+  m_CullingType: 0
+--- !u!1 &9022915552778827533
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1029318446095660496}
+  m_Layer: 6
+  m_Name: ParticleRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1029318446095660496
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9022915552778827533}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8476835537063936340}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
