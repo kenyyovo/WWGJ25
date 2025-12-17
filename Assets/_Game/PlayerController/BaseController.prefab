@@ -164,6 +164,7 @@ MonoBehaviour:
   spriteRoot: {fileID: 6524108366447653447}
   animatorRoot: {fileID: 5669805587835064168}
   particleRoot: {fileID: 1029318446095660496}
+  spriteRenderer: {fileID: 2596292187080091284}
   bubbleRow: {fileID: 7575903325392096926}
   noteSprites:
   - {fileID: -4729439089291347794, guid: 05db724276af3b54882ffde0a3f28158, type: 3}

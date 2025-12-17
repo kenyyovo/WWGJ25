@@ -64,6 +64,10 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2596292187080091284, guid: 75995727ff9993540a956972b6984a75, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: f9d1872d501e4c3429805b3d3dc19bb2, type: 2}
     - target: {fileID: 2729669179958456698, guid: 75995727ff9993540a956972b6984a75, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1

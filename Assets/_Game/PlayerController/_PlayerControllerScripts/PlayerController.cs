@@ -25,6 +25,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform spriteRoot;
     [SerializeField] private Transform animatorRoot;
     [SerializeField] private Transform particleRoot;
+    [SerializeField] private SpriteRenderer spriteRenderer;
 
     [Header("NOTE SHEET")] 
     [SerializeField] private BubbleRow bubbleRow;
@@ -56,10 +57,12 @@ public class PlayerController : MonoBehaviour
     private bool hasUsedDoubleJump;
     
     private bool isInvertControls;
+    private Material spriteMaterial;
 
     private void OnEnable()
     {
         groundLayer = LayerMask.GetMask("Ground");
+        spriteMaterial = spriteRenderer.material;
     }
     
     private void Update()
@@ -408,7 +411,8 @@ public class PlayerController : MonoBehaviour
         System.Action[] effects = new System.Action[]
         {
             () => StartCoroutine(BackflipRoutine()),
-            () => StartCoroutine(InvertControlsRoutine())
+            () => StartCoroutine(InvertControlsRoutine()),
+            () => StartCoroutine(MaterialEffectRoutine())
         };
         
         int index = Random.Range(0, effects.Length);
@@ -474,6 +478,25 @@ public class PlayerController : MonoBehaviour
         }
         
         animatorRoot.localEulerAngles = new Vector3(0f, 0f, startRotation);
+    }
+
+    private IEnumerator MaterialEffectRoutine()
+    {
+        StartBadEffectCooldown(4f);
+        
+        string[] effects = { "_Emission", "_HueShift", "_Pixelate" };
+        
+        int randomIndex = Random.Range(0, effects.Length);
+        string chosenEffect = effects[randomIndex];
+        
+        spriteMaterial.SetInt(chosenEffect, 1);
+
+        yield return new WaitForSeconds(3.95f);
+        
+        foreach (string effect in effects)
+        {
+            spriteMaterial.SetInt(effect, 0);
+        }
     }
     
     #endregion
