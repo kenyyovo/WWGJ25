@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: P1NoteSequenceData
   m_EditorClassIdentifier: 
   sequences:
-  - sequenceName: Test0
+  - sequenceName: Flatten
     notes: 00000000010000000200000003000000
   - sequenceName: Test1
     notes: 03000000010000000200000001000000

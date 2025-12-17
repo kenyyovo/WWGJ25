@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public enum PlayerID
 {
@@ -17,12 +16,14 @@ public class PlayerController : MonoBehaviour
     [Header("MOVEMENT SETTINGS")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 10f;
+    [SerializeField] private Vector2 groundCheckSize = new Vector2(0.6f, 0.1f);
 
     [Header("REFERENCES")] 
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Animator animator;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private Transform spriteRoot;
+    [SerializeField] private Transform animatorRoot;
     [SerializeField] private Transform particleRoot;
 
     [Header("NOTE SHEET")] 
@@ -45,10 +46,15 @@ public class PlayerController : MonoBehaviour
     
     private List<int> currentSequence = new List<int>();
     private float lastNoteTime;
-    private bool isOnEffectCooldown;
-    private float effectCooldownEndTime;
+    private bool isOnGoodEffectCooldown;
+    private float goodEffectCooldownEndTime;
+    private bool isOnBadEffectCooldown;
+    private float badEffectCooldownEndTime;
     private bool isSequenceLocked;
 
+    private bool canDoubleJump;
+    private bool hasUsedDoubleJump;
+    
     private bool isInvertControls;
 
     private void OnEnable()
@@ -62,7 +68,8 @@ public class PlayerController : MonoBehaviour
         HandleJump();
         HandleModeToggle();
         HandleMusicActions();
-        UpdateEffectCooldown();
+        UpdateGoodEffectCooldown();
+        UpdateBadEffectCooldown();
         CheckSequenceTimeout();
     }
 
@@ -109,27 +116,43 @@ public class PlayerController : MonoBehaviour
     private void HandleJump()
     {
         if (isMusicMode) return;
-        if (!isGrounded) return;
 
         bool jumpPressed =
             (playerID == PlayerID.Player1 && Input.GetKeyDown(KeyCode.W)) ||
             (playerID == PlayerID.Player2 && Input.GetKeyDown(KeyCode.UpArrow));
 
-        if (jumpPressed)
+        if (!jumpPressed)
+            return;
+        
+        if (isGrounded)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            return;
+        }
+        
+        if (canDoubleJump && !hasUsedDoubleJump)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            StartCoroutine(DoubleJumpAnimation());
+            hasUsedDoubleJump = true;
         }
     }
 
     private void CheckGrounded()
     {
-        if (groundCheck == null) return;
-
-        isGrounded = Physics2D.OverlapCircle(
+        bool wasGrounded = isGrounded;        
+        
+        isGrounded = Physics2D.OverlapBox(
             groundCheck.position,
-            0.15f,
+            groundCheckSize,
+            0f,
             groundLayer
         );
+        
+        if (isGrounded && !wasGrounded)
+        {
+            hasUsedDoubleJump = false;
+        }
     }
     
     private void OnDrawGizmosSelected()
@@ -137,7 +160,7 @@ public class PlayerController : MonoBehaviour
         if (groundCheck == null) return;
 
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(groundCheck.position, 0.15f);
+        Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
     }
     
     #endregion
@@ -147,8 +170,8 @@ public class PlayerController : MonoBehaviour
     private void HandleModeToggle()
     {
         bool togglePressed =
-            (playerID == PlayerID.Player1 && Input.GetKeyDown(KeyCode.LeftShift)) ||
-            (playerID == PlayerID.Player2 && Input.GetKeyDown(KeyCode.RightShift));
+            (playerID == PlayerID.Player1 && Unlocks.IsMusicModeUnlockedP1() && Input.GetKeyDown(KeyCode.LeftShift)) ||
+            (playerID == PlayerID.Player2 && Unlocks.IsMusicModeUnlockedP2() && Input.GetKeyDown(KeyCode.RightShift));
 
         if (togglePressed)
         {
@@ -200,8 +223,7 @@ public class PlayerController : MonoBehaviour
         currentSequence.Add(noteIndex);
         bubbleRow.AddBubble(noteSprites[noteIndex]);
 
-        if (currentSequence.Count < 4)
-            return;
+        if (currentSequence.Count < 4) return;
 
         bool matched = false;
 
@@ -228,7 +250,6 @@ public class PlayerController : MonoBehaviour
             currentSequence.Clear();
         });
     }
-
     
     private bool IsMatch(int[] target)
     {
@@ -252,9 +273,9 @@ public class PlayerController : MonoBehaviour
         }
     }
     
-    private void SpawnReactionPS(GameObject gameObject)
+    private void SpawnReactionPS(GameObject ps)
     {
-        GameObject fx = Instantiate(gameObject, particleRoot);
+        GameObject fx = Instantiate(ps, particleRoot);
         
         Vector3 localPos = Vector3.zero;
         
@@ -268,41 +289,125 @@ public class PlayerController : MonoBehaviour
         Destroy(fx, 2.5f);
     }
     
-    private void UpdateEffectCooldown()
-    {
-        if (!isOnEffectCooldown) return;
-
-        if (Time.time >= effectCooldownEndTime)
-        {
-            isOnEffectCooldown = false;
-            SpawnReactionPS(cooldownPS);
-        }
-    }
     #endregion
     
     #region Good Effects
     
+    private void UpdateGoodEffectCooldown()
+    {
+        if (!isOnGoodEffectCooldown) return;
+
+        if (Time.time >= goodEffectCooldownEndTime)
+        {
+            isOnGoodEffectCooldown = false;
+            SpawnReactionPS(cooldownPS);
+        }
+    }
+    
+    private void StartGoodEffectCooldown(float effectCooldown)
+    {
+        isOnGoodEffectCooldown = true;
+        goodEffectCooldownEndTime = Time.time + effectCooldown;
+    }
+    
     private void TriggerEffect(string effectName)
     {
-        if (isOnEffectCooldown) return;
+        if (isOnGoodEffectCooldown) return;
         
         SpawnReactionPS(sparklePS);
-        //Give Effect, move start cooldown in the giveeffect functions
-        StartEffectCooldown(3f);
+
+        if (playerID == PlayerID.Player1)
+        {
+            switch (effectName)
+            {
+                case "Jump":
+                    StartCoroutine(DoubleJumpRoutine());
+                    break;
+            }
+        }
+        else
+        {
+            switch (effectName)
+            {
+                case "Flatten":
+                {
+                    StartCoroutine(FlattenRoutine());
+                    break;
+                }
+            }
+        }
+        
+    }
+
+    private IEnumerator DoubleJumpRoutine()
+    {
+        canDoubleJump = true;
+        hasUsedDoubleJump = false;
+        StartGoodEffectCooldown(6f);
+        
+        yield return new WaitForSeconds(5.95f);
+        
+        canDoubleJump = false;
+    }
+
+    private IEnumerator DoubleJumpAnimation()
+    {
+        float elapsed = 0f;
+        float duration = .5f;
+        float startRotation = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            
+            float rotation = Mathf.Lerp(0f, -360f, t);
+            animatorRoot.localEulerAngles = new Vector3(0f, 0f, startRotation + rotation);
+
+            yield return null;
+        }
+        
+        animatorRoot.localEulerAngles = new Vector3(0f, 0f, startRotation);
+    }
+
+    private IEnumerator FlattenRoutine()
+    {
+        StartGoodEffectCooldown(6f);
+        transform.rotation = Quaternion.Euler(75f, 0f, 0f);
+
+        yield return new WaitForSeconds(5.95f);
+        
+        transform.rotation = Quaternion.Euler(0f, 0f, 0f);
     }
     
     #endregion
     
     #region Bad Effects
 
+    private void UpdateBadEffectCooldown()
+    {
+        if (!isOnBadEffectCooldown) return;
+
+        if (Time.time >= badEffectCooldownEndTime)
+        {
+            isOnBadEffectCooldown = false;
+            SpawnReactionPS(cooldownPS);
+        }
+    }
+    
+    private void StartBadEffectCooldown(float effectCooldown)
+    {
+        isOnBadEffectCooldown = true;
+        badEffectCooldownEndTime = Time.time + effectCooldown;
+    }
+    
     private void TriggerBadEffect()
     {
-        if (isOnEffectCooldown) return;
+        if (isOnBadEffectCooldown) return;
         
         System.Action[] effects = new System.Action[]
         {
             () => StartCoroutine(BackflipRoutine()),
-            () => StartCoroutine(FlipRoutine()),
             () => StartCoroutine(InvertControlsRoutine())
         };
         
@@ -316,21 +421,42 @@ public class PlayerController : MonoBehaviour
     private IEnumerator InvertControlsRoutine()
     {
         isInvertControls = true;
-        StartEffectCooldown(5.05f);
+        StartCoroutine(FlipRoutine());
+        StartBadEffectCooldown(5.05f);
         
         yield return new WaitForSeconds(5f);
         
         isInvertControls = false;
     }
+    
+    private IEnumerator FlipRoutine()
+    {
+        float elapsed = 0f;
+        float duration = .5f;
+        float startRotation = animatorRoot.localEulerAngles.y;
+        
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            
+            float rotation = Mathf.Lerp(0f, 360f, t);
+            animatorRoot.localEulerAngles = new Vector3(0f, startRotation + rotation, 0f);
+
+            yield return null;
+        }
+        
+        animatorRoot.localEulerAngles = new Vector3(0f, startRotation, 0f);
+    }
 
     private IEnumerator BackflipRoutine()
     {
-        StartEffectCooldown(2f);
+        StartBadEffectCooldown(1f);
 
         float elapsed = 0f;
-        float duration = 1f;
-        float startRotation = transform.localEulerAngles.z;
-        Vector3 startPosition = transform.localPosition;
+        float duration = .75f;
+        float startRotation = 0;
+        Vector3 startPosition = animatorRoot.localPosition;
         float jumpHeight = 0.5f;
 
         while (elapsed < duration)
@@ -339,43 +465,15 @@ public class PlayerController : MonoBehaviour
             float t = elapsed / duration;
             
             float rotation = Mathf.Lerp(0f, 360f, t);
-            transform.localEulerAngles = new Vector3(0f, 0f, startRotation + rotation);
+            animatorRoot.localEulerAngles = new Vector3(0f, 0f, startRotation + rotation);
             
             float yOffset = 4f * jumpHeight * t * (1f - t);
-            transform.localPosition = new Vector3(startPosition.x, startPosition.y + yOffset, startPosition.z);
+            animatorRoot.localPosition = new Vector3(startPosition.x, startPosition.y + yOffset, startPosition.z);
 
             yield return null;
         }
         
-        transform.localEulerAngles = new Vector3(0f, 0f, startRotation);
-    }
-
-    private IEnumerator FlipRoutine()
-    {
-        StartEffectCooldown(2f);
-        
-        float elapsed = 0f;
-        float duration = 1f;
-        float startRotation = transform.localEulerAngles.y;
-        
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            
-            float rotation = Mathf.Lerp(0f, 360f, t);
-            transform.localEulerAngles = new Vector3(0f, startRotation + rotation, 0f);
-
-            yield return null;
-        }
-        
-        transform.localEulerAngles = new Vector3(0f, startRotation, 0f);
-    }
-
-    private void StartEffectCooldown(float effectCooldown)
-    {
-        isOnEffectCooldown = true;
-        effectCooldownEndTime = Time.time + effectCooldown;
+        animatorRoot.localEulerAngles = new Vector3(0f, 0f, startRotation);
     }
     
     #endregion

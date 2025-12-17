@@ -157,10 +157,12 @@ MonoBehaviour:
   playerID: 0
   moveSpeed: 5
   jumpForce: 10
+  groundCheckSize: {x: 0.6, y: 0.1}
   rb: {fileID: 1737374429392865247}
   animator: {fileID: 5045183173376306742}
   groundCheck: {fileID: 5705448364716227}
   spriteRoot: {fileID: 6524108366447653447}
+  animatorRoot: {fileID: 5669805587835064168}
   particleRoot: {fileID: 1029318446095660496}
   bubbleRow: {fileID: 7575903325392096926}
   noteSprites:

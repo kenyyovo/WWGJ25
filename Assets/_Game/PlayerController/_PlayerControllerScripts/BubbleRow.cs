@@ -25,7 +25,7 @@ public class BubbleRow : MonoBehaviour
 
 	public void Resolve(bool matched, System.Action onComplete)
 	{
-		float duration = matched ? 1.5f : .75f;
+		float duration = matched ? 1.2f : .5f;
 
 		if (matched)
 		{

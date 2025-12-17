@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: P2NoteSequenceData
   m_EditorClassIdentifier: 
   sequences:
-  - sequenceName: Test0
-    notes: 03000000020000000100000000000000
+  - sequenceName: Jump
+    notes: 00000000010000000200000003000000
   - sequenceName: Test1
     notes: 03000000020000000100000001000000
