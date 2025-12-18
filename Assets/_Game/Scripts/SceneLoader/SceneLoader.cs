@@ -30,6 +30,8 @@ public class SceneLoader : MonoBehaviour
 
     private IEnumerator TransitionSceneRoutine()
     {
+        yield return new WaitForSeconds(1.25f);
+        
         canvasGroup.alpha = 1;
         
         fadeAnimation.Play("FadeIn");

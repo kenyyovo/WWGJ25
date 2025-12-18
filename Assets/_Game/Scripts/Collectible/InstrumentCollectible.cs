@@ -13,6 +13,7 @@ public class InstrumentCollectible : MonoBehaviour
         if (other.CompareTag("Player1") && !unlockedP1)
         {
             Unlocks.UnlockMusicModeP1();
+            Unlocks.UnlockEffect0();
             unlockedP1 = true;
             collectAnimation.Play("CollectibleCollected");
             StartCoroutine(DespawnRoutine());
@@ -21,6 +22,7 @@ public class InstrumentCollectible : MonoBehaviour
         if (other.CompareTag("Player2") && !unlockedP2)
         {
             Unlocks.UnlockMusicModeP2();
+            Unlocks.UnlockEffect0();
             unlockedP2 = true;
             collectAnimation.Play("CollectibleCollected");
             StartCoroutine(DespawnRoutine());

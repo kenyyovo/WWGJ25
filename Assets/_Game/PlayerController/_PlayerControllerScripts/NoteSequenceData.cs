@@ -10,6 +10,8 @@ public class NoteSequenceData : ScriptableObject
 	public struct Sequence
 	{
 		public string sequenceName; 
-		public int[] notes;         
+		public int[] notes;
+		
+		public string unlockKey;
 	}
 }

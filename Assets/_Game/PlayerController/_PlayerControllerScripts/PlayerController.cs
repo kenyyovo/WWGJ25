@@ -25,6 +25,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform spriteRoot;
     [SerializeField] private Transform animatorRoot;
     [SerializeField] private Transform particleRoot;
+    [SerializeField] private Transform particleRootBottom;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     [Header("NOTE SHEET")] 
@@ -39,6 +40,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject sweatPS;
     [SerializeField] private GameObject angryPS;
     [SerializeField] private GameObject cooldownPS;
+    [SerializeField] private GameObject effect0PS;
+
+    private bool isInputEnabled = true;
     
     private bool isGrounded;
     private LayerMask groundLayer;
@@ -55,6 +59,7 @@ public class PlayerController : MonoBehaviour
 
     private bool canDoubleJump;
     private bool hasUsedDoubleJump;
+    public bool isBox;
     
     private bool isInvertControls;
     private Material spriteMaterial;
@@ -63,6 +68,11 @@ public class PlayerController : MonoBehaviour
     {
         groundLayer = LayerMask.GetMask("Ground");
         spriteMaterial = spriteRenderer.material;
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
     }
     
     private void Update()
@@ -85,6 +95,8 @@ public class PlayerController : MonoBehaviour
     
     private void HandleMovement()
     {
+        if (!isInputEnabled) return;
+        
         if (isMusicMode)
         {
             animator.SetBool("IsMoving", false);
@@ -118,6 +130,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleJump()
     {
+        if (!isInputEnabled) return;
         if (isMusicMode) return;
 
         bool jumpPressed =
@@ -165,6 +178,11 @@ public class PlayerController : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
     }
+
+    public void ToggleControls(bool toggle)
+    {
+        isInputEnabled = toggle;
+    }
     
     #endregion
     
@@ -172,6 +190,8 @@ public class PlayerController : MonoBehaviour
     
     private void HandleModeToggle()
     {
+        if (!isInputEnabled) return;
+        
         bool togglePressed =
             (playerID == PlayerID.Player1 && Unlocks.IsMusicModeUnlockedP1() && Input.GetKeyDown(KeyCode.LeftShift)) ||
             (playerID == PlayerID.Player2 && Unlocks.IsMusicModeUnlockedP2() && Input.GetKeyDown(KeyCode.RightShift));
@@ -232,23 +252,29 @@ public class PlayerController : MonoBehaviour
 
         foreach (var seq in sequenceData.sequences)
         {
-            if (IsMatch(seq.notes))
-            {
-                matched = true;
-                otherPlayer.TriggerEffect(seq.sequenceName);
-                SpawnReactionPS(sparklePS);
-                break;
-            }
-        }
+            if (!IsMatch(seq.notes))
+                continue;
 
+            if (!Unlocks.IsEffectUnlocked(seq.unlockKey))
+            {
+                continue;
+            }
+
+            matched = true;
+            SpawnReactionPS(sparklePS, particleRoot);
+            otherPlayer.TriggerEffect(seq.sequenceName);
+            break;
+        }
+        
         if (!matched)
         {
             otherPlayer.TriggerBadEffect();
-            SpawnReactionPS(sweatPS);
+            SpawnReactionPS(sweatPS, particleRoot);
         }
-        
+
         isSequenceLocked = true;
-        bubbleRow.Resolve(matched, () => {
+        bubbleRow.Resolve(matched, () =>
+        {
             isSequenceLocked = false;
             currentSequence.Clear();
         });
@@ -276,9 +302,9 @@ public class PlayerController : MonoBehaviour
         }
     }
     
-    private void SpawnReactionPS(GameObject ps)
+    private void SpawnReactionPS(GameObject ps, Transform particleSpawn, float duration = 2.5f)
     {
-        GameObject fx = Instantiate(ps, particleRoot);
+        GameObject fx = Instantiate(ps, particleSpawn);
         
         Vector3 localPos = Vector3.zero;
         
@@ -289,7 +315,7 @@ public class PlayerController : MonoBehaviour
 
         fx.transform.localPosition = localPos;
         
-        Destroy(fx, 2.5f);
+        Destroy(fx, duration);
     }
     
     #endregion
@@ -303,7 +329,7 @@ public class PlayerController : MonoBehaviour
         if (Time.time >= goodEffectCooldownEndTime)
         {
             isOnGoodEffectCooldown = false;
-            SpawnReactionPS(cooldownPS);
+            SpawnReactionPS(cooldownPS, particleRoot);
         }
     }
     
@@ -317,7 +343,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isOnGoodEffectCooldown) return;
         
-        SpawnReactionPS(sparklePS);
+        SpawnReactionPS(sparklePS, particleRoot);
 
         if (playerID == PlayerID.Player1)
         {
@@ -325,6 +351,9 @@ public class PlayerController : MonoBehaviour
             {
                 case "Jump":
                     StartCoroutine(DoubleJumpRoutine());
+                    break;
+                case "Box":
+                    StartCoroutine(BoxRoutine());
                     break;
             }
         }
@@ -337,6 +366,11 @@ public class PlayerController : MonoBehaviour
                     StartCoroutine(FlattenRoutine());
                     break;
                 }
+                case "Gravity":
+                {
+                    StartCoroutine(GravityRoutine());
+                    break;
+                }
             }
         }
         
@@ -347,6 +381,7 @@ public class PlayerController : MonoBehaviour
         canDoubleJump = true;
         hasUsedDoubleJump = false;
         StartGoodEffectCooldown(6f);
+        SpawnReactionPS(effect0PS, particleRootBottom, 6f);
         
         yield return new WaitForSeconds(5.95f);
         
@@ -376,11 +411,43 @@ public class PlayerController : MonoBehaviour
     private IEnumerator FlattenRoutine()
     {
         StartGoodEffectCooldown(6f);
-        transform.rotation = Quaternion.Euler(75f, 0f, 0f);
+        SpawnReactionPS(effect0PS, particleRootBottom, 6f);
+        transform.rotation = Quaternion.Euler(-75f, 0f, 0f);
 
         yield return new WaitForSeconds(5.95f);
         
         transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+    }
+
+    private IEnumerator BoxRoutine()
+    {
+        StartGoodEffectCooldown(6f);
+        SpawnReactionPS(effect0PS, particleRootBottom, 6f);
+        ToggleControls(false);
+        animator.Play("P1Boxed");
+        isBox = true;
+        
+        yield return new WaitForSeconds(5.95f);
+        
+        animator.Play("Idle");
+        isBox = false;
+        ToggleControls(true);
+    }
+
+    private IEnumerator GravityRoutine()
+    {
+        StartGoodEffectCooldown(6f);
+        SpawnReactionPS(effect0PS, particleRootBottom, 6f);
+        rb.gravityScale = -3;
+        
+        Vector3 scale = transform.localScale;
+        transform.localScale = new Vector3(scale.x, -Mathf.Abs(scale.y), scale.z);
+        
+        yield return new WaitForSeconds(5.95f);
+        
+        scale = transform.localScale;
+        transform.localScale = new Vector3(scale.x, Mathf.Abs(scale.y), scale.z);
+        rb.gravityScale = 5;
     }
     
     #endregion
@@ -394,7 +461,7 @@ public class PlayerController : MonoBehaviour
         if (Time.time >= badEffectCooldownEndTime)
         {
             isOnBadEffectCooldown = false;
-            SpawnReactionPS(cooldownPS);
+            SpawnReactionPS(cooldownPS, particleRoot);
         }
     }
     
@@ -417,7 +484,7 @@ public class PlayerController : MonoBehaviour
         
         int index = Random.Range(0, effects.Length);
         
-        SpawnReactionPS(angryPS);
+        SpawnReactionPS(angryPS, particleRoot);
         
         effects[index].Invoke();
     }

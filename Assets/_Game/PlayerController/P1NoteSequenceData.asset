@@ -15,5 +15,7 @@ MonoBehaviour:
   sequences:
   - sequenceName: Flatten
     notes: 00000000010000000200000003000000
-  - sequenceName: Test1
-    notes: 03000000010000000200000001000000
+    unlockKey: Effect0
+  - sequenceName: Gravity
+    notes: 02000000030000000100000003000000
+    unlockKey: Effect1
