@@ -59,7 +59,8 @@ public class PlayerController : MonoBehaviour
 
     private bool canDoubleJump;
     private bool hasUsedDoubleJump;
-    public bool isBox;
+    public event System.Action<bool> OnBoxStateChanged;
+    private bool _isBox;
     
     private bool isInvertControls;
     private Material spriteMaterial;
@@ -205,6 +206,7 @@ public class PlayerController : MonoBehaviour
     
     private void HandleMusicActions()
     {
+        if (!isInputEnabled) return;
         if (!isMusicMode) return;
         
         if (playerID == PlayerID.Player1)
@@ -425,13 +427,26 @@ public class PlayerController : MonoBehaviour
         SpawnReactionPS(effect0PS, particleRootBottom, 6f);
         ToggleControls(false);
         animator.Play("P1Boxed");
+
         isBox = true;
-        
+
         yield return new WaitForSeconds(5.95f);
-        
+
         animator.Play("Idle");
         isBox = false;
         ToggleControls(true);
+    }
+    
+    public bool isBox
+    {
+        get => _isBox;
+        private set
+        {
+            if (_isBox == value) return;
+
+            _isBox = value;
+            OnBoxStateChanged?.Invoke(_isBox);
+        }
     }
 
     private IEnumerator GravityRoutine()

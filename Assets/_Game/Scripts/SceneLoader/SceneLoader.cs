@@ -17,6 +17,11 @@ public class SceneLoader : MonoBehaviour
         StartCoroutine(TransitionSceneRoutine());
     }
 
+    public void TransitionSceneName(string name)
+    {
+        StartCoroutine(TransitionSceneNameRoutine(name));
+    }
+
     private IEnumerator FadeOutRoutine()
     {
         canvasGroup.alpha = 1;
@@ -40,5 +45,18 @@ public class SceneLoader : MonoBehaviour
         
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(currentSceneIndex + 1);
+    }
+    
+    private IEnumerator TransitionSceneNameRoutine(string name)
+    {
+        yield return new WaitForSeconds(1.25f);
+        
+        canvasGroup.alpha = 1;
+        
+        fadeAnimation.Play("FadeIn");
+        
+        yield return new WaitForSeconds(1.25f);
+        
+        SceneManager.LoadScene(name);
     }
 }

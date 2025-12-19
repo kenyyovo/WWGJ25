@@ -48,6 +48,10 @@ PrefabInstance:
       propertyPath: m_LinearDamping
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2028772415263598642, guid: 75995727ff9993540a956972b6984a75, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2596292187080091284, guid: 75995727ff9993540a956972b6984a75, type: 3}
       propertyPath: m_Size.x
       value: 2.27
@@ -194,7 +198,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8476835537063936340, guid: 75995727ff9993540a956972b6984a75, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -5.12
+      value: -5.69
       objectReference: {fileID: 0}
     - target: {fileID: 8476835537063936340, guid: 75995727ff9993540a956972b6984a75, type: 3}
       propertyPath: m_LocalPosition.z

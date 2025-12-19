@@ -1,55 +1,152 @@
 using UnityEngine;
 
+[System.Serializable]
+public class ButtonTarget
+{
+    public GameObject target;
+    public bool enableOnPress = true;
+}
+
 public class ButtonTrigger : MonoBehaviour
 {
-    [SerializeField] private GameObject indicator;
+    [SerializeField] private GameObject[] indicators;
     [SerializeField] private Animator buttonAnimator;
-    [SerializeField] private GameObject[] objectsToActivate;
+    [SerializeField] private ButtonTarget[] objectsToToggle;
 
     private bool isPressed;
+    private PlayerController currentPlayer1;
+    private bool player2OnButton;
 
     private void OnEnable()
     {
-        indicator.SetActive(false);
+        ResetButton();
+        buttonAnimator.SetInteger("ButtonState", 0);    
         ToggleObjects(false);
-        isPressed = false;
     }
 
-    private void OnTriggerStay2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.TryGetComponent(out PlayerController player))
-            return;
+        if (other.CompareTag("Player1"))
+        {
+            if (other.TryGetComponent(out PlayerController player))
+            {
+                currentPlayer1 = player;
+                player.OnBoxStateChanged += HandleBoxStateChanged;
 
-        if (player.isBox && !isPressed)
-        {
-            isPressed = true;
-            indicator.SetActive(true);
-            ToggleObjects(true);
-            buttonAnimator.SetTrigger("OnButton");
+                buttonAnimator.SetInteger("ButtonState", player.isBox ? 2 : 1);
+            }
         }
-        else if (!player.isBox && isPressed)
+        
+        else if (other.CompareTag("Player2"))
         {
-            isPressed = false;
-            indicator.SetActive(false);
-            ToggleObjects(false);
-            buttonAnimator.SetTrigger("OnButtonInvalid");
+            player2OnButton = true;
+            ForcePress();
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (!other.TryGetComponent(out PlayerController _))
-            return;
+        if (other.CompareTag("Player1") &&
+            currentPlayer1 != null &&
+            other.TryGetComponent(out PlayerController player) &&
+            player == currentPlayer1)
+        {
+            player.OnBoxStateChanged -= HandleBoxStateChanged;
+            currentPlayer1 = null;
 
-        isPressed = false;
-        indicator.SetActive(false);
-        ToggleObjects(false);
-        buttonAnimator.SetTrigger("OffButton");
+            if (!player2OnButton)
+            {
+                ResetButton();
+                buttonAnimator.SetInteger("ButtonState", 0);
+            }
+        }
+        
+        else if (other.CompareTag("Player2"))
+        {
+            player2OnButton = false;
+            
+            if (currentPlayer1 != null)
+            {
+                if (currentPlayer1.isBox)
+                {
+                    PressButton();
+                    buttonAnimator.SetInteger("ButtonState", 2);
+                }
+                else
+                {
+                    ReleaseButton(1);
+                }
+            }
+            else
+            {
+                ResetButton();
+                buttonAnimator.SetInteger("ButtonState", 0);
+            }
+        }
+
     }
 
-    private void ToggleObjects(bool toggle)
+    private void HandleBoxStateChanged(bool isBox)
     {
-        foreach (var obj in objectsToActivate)
-            obj.SetActive(toggle);
+        if (player2OnButton)
+            return;
+        
+        if (!isBox && !isPressed)
+        {
+            buttonAnimator.SetInteger("ButtonState", 1);
+            return;
+        }
+
+        if (isBox && !isPressed)
+        {
+            PressButton();
+        }
+        else if (!isBox && isPressed)
+        {
+            ReleaseButton(1);
+        }
+    }
+    
+    private void ForcePress()
+    {
+        isPressed = true;
+        ToggleObjects(true);
+        buttonAnimator.SetInteger("ButtonState", 2);
+        
+        foreach (GameObject indicator in indicators) indicator.SetActive(true);
+    }
+
+    private void PressButton()
+    {
+        isPressed = true;
+        ToggleObjects(true);
+        buttonAnimator.SetInteger("ButtonState", 2);
+        
+        foreach (GameObject indicator in indicators) indicator.SetActive(true);
+    }
+
+    private void ReleaseButton(int state)
+    {
+        isPressed = false;
+        ToggleObjects(false);
+        buttonAnimator.SetInteger("ButtonState", state);
+        
+        foreach (GameObject indicator in indicators) indicator.SetActive(false);
+    }
+
+    private void ResetButton()
+    {
+        isPressed = false;
+        ToggleObjects(false);
+        
+        foreach (GameObject indicator in indicators) indicator.SetActive(false);
+    }
+
+    private void ToggleObjects(bool pressed)
+    {
+        foreach (var obj in objectsToToggle)
+        {
+            obj.target.SetActive(pressed == obj.enableOnPress);
+        }
     }
 }
