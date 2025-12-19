@@ -1075,7 +1075,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TITLE
+  m_text: 'YOUR BODY,
+
+    MY INSTRUMENT'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1f29ff52c63560745902809e5fe19a57, type: 2}
   m_sharedMaterial: {fileID: -4588206504131676173, guid: 1f29ff52c63560745902809e5fe19a57, type: 2}
@@ -1102,8 +1104,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 43.3
-  m_fontSizeBase: 43.3
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
