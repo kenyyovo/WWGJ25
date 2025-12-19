@@ -149,6 +149,7 @@ public class PlayerController : MonoBehaviour
         
         if (canDoubleJump && !hasUsedDoubleJump)
         {
+            AudioManager.PlaySound(SoundType.DoubleJump);
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             StartCoroutine(DoubleJumpAnimation());
             hasUsedDoubleJump = true;
@@ -199,6 +200,7 @@ public class PlayerController : MonoBehaviour
 
         if (togglePressed)
         {
+            AudioManager.PlaySound(SoundType.ToggleMode);
             isMusicMode = !isMusicMode;
             animator.SetBool("MusicMode", isMusicMode);
         }
@@ -413,6 +415,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator FlattenRoutine()
     {
         StartGoodEffectCooldown(6f);
+        AudioManager.PlaySound(SoundType.Flatten);
         SpawnReactionPS(effect0PS, particleRootBottom, 6f);
         transform.rotation = Quaternion.Euler(-75f, 0f, 0f);
 
@@ -424,6 +427,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator BoxRoutine()
     {
         StartGoodEffectCooldown(6f);
+        AudioManager.PlaySound(SoundType.Boxed);
         SpawnReactionPS(effect0PS, particleRootBottom, 6f);
         ToggleControls(false);
         animator.Play("P1Boxed");
@@ -451,6 +455,7 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator GravityRoutine()
     {
+        AudioManager.PlaySound(SoundType.Gravity);
         StartGoodEffectCooldown(6f);
         SpawnReactionPS(effect0PS, particleRootBottom, 6f);
         rb.gravityScale = -3;
@@ -500,6 +505,15 @@ public class PlayerController : MonoBehaviour
         int index = Random.Range(0, effects.Length);
         
         SpawnReactionPS(angryPS, particleRoot);
+
+        if (playerID == PlayerID.Player1)
+        {
+            AudioManager.PlaySound(SoundType.P1BadEffect);
+        }
+        else
+        {
+            AudioManager.PlaySound(SoundType.P2BadEffect);
+        }
         
         effects[index].Invoke();
     }
@@ -564,7 +578,7 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator MaterialEffectRoutine()
     {
-        StartBadEffectCooldown(4f);
+        StartBadEffectCooldown(1f);
         
         string[] effects = { "_Emission", "_HueShift", "_Pixelate" };
         
@@ -573,7 +587,7 @@ public class PlayerController : MonoBehaviour
         
         spriteMaterial.SetInt(chosenEffect, 1);
 
-        yield return new WaitForSeconds(3.95f);
+        yield return new WaitForSeconds(4f);
         
         foreach (string effect in effects)
         {

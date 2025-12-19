@@ -12,7 +12,16 @@ public enum SoundType
 	P2Note0,
 	P2Note1,
 	P2Note2,
-	P2Note3
+	P2Note3,
+	P1BadEffect,
+	P2BadEffect,
+	ToggleMode,
+	ButtonClick,
+	DoubleJump,
+	Collectible,
+	Boxed,
+	Gravity,
+	Flatten
 }
 
 [RequireComponent(typeof(AudioSource)), ExecuteInEditMode]

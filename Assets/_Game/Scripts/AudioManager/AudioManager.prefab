@@ -168,3 +168,33 @@ MonoBehaviour:
   - name: P2Note3
     sounds:
     - {fileID: 8300000, guid: f1d8dc911220f2348b17b02ebc9ab1b0, type: 3}
+  - name: P1BadEffect
+    sounds:
+    - {fileID: 8300000, guid: f2aa66e299f33304ea0200141b0b423b, type: 3}
+    - {fileID: 8300000, guid: 25012324b00fb67428e30503143d3568, type: 3}
+    - {fileID: 8300000, guid: ddc4981c6d905c047bb87a5051cef99d, type: 3}
+  - name: P2BadEffect
+    sounds:
+    - {fileID: 8300000, guid: a0f6ec8f4700755448086c7552c44966, type: 3}
+  - name: ToggleMode
+    sounds:
+    - {fileID: 8300000, guid: 19a0ffee87668f54a8d2d784790838d0, type: 3}
+  - name: ButtonClick
+    sounds:
+    - {fileID: 8300000, guid: bee982da3325e4a44a27df1a92538fdc, type: 3}
+  - name: DoubleJump
+    sounds:
+    - {fileID: 8300000, guid: 224084a288ac46c49b79afc6c0890b55, type: 3}
+    - {fileID: 8300000, guid: c3c261366f85b8f46bb72df6c0b9fe8a, type: 3}
+  - name: Collectible
+    sounds:
+    - {fileID: 8300000, guid: 60cb4cae6b935a84ea01a229cbf91de5, type: 3}
+  - name: Boxed
+    sounds:
+    - {fileID: 8300000, guid: 282d1ddc958f1ee40a3e28a9c66427a5, type: 3}
+  - name: Gravity
+    sounds:
+    - {fileID: 8300000, guid: a0f6ec8f4700755448086c7552c44966, type: 3}
+  - name: Flatten
+    sounds:
+    - {fileID: 8300000, guid: aa1fe065597436940b6c9f1a5f9fb06f, type: 3}

@@ -21,6 +21,7 @@ public class Effect1Collectible : MonoBehaviour
     {
         if (other.CompareTag("Player1") && !collected || other.CompareTag("Player2") && !collected)
         {
+            AudioManager.PlaySound(SoundType.Collectible);
             Unlocks.UnlockEffect1();
             collected = true;
             collectAnimation.Play("CollectibleCollected");

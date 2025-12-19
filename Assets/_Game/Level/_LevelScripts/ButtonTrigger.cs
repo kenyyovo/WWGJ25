@@ -120,6 +120,7 @@ public class ButtonTrigger : MonoBehaviour
     {
         isPressed = true;
         ToggleObjects(true);
+        AudioManager.PlaySound(SoundType.ButtonClick);
         buttonAnimator.SetInteger("ButtonState", 2);
         
         foreach (GameObject indicator in indicators) indicator.SetActive(true);
